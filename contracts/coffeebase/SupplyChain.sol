@@ -91,7 +91,8 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
     _;
     uint _price = items[_upc].productPrice;
     uint amountToReturn = msg.value - _price;
-    items[_upc].distributorID.call{value:amountToReturn};
+    //items[_upc].distributorID.call{value:amountToReturn};
+    items[_upc].distributorID.transfer(amountToReturn);
   }
 
   // Define a modifier that checks if an item.state of a upc is Harvested
@@ -228,15 +229,18 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
     checkValue(_upc) 
     onlyDistributor   
     {
-    // Update the appropriate fields - ownerID, distributorID, itemState
+      /*if (items[_upc].productPrice < msg.value) {
+        uint amountToReturn = msg.value - items[_upc].productPrice;
+        items[_upc].distributorID.transfer(amountToReturn);
+      }*/
+
+      // Update the appropriate fields - ownerID, distributorID, itemState
       items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
       items[_upc].distributorID = msg.sender; // Metamask-Ethereum address of the Farmer
       items[_upc].itemState = State.Sold;  // Product State as represented in the enum above    
-    // Transfer money to farmer
-    address payable farmerAddress = payable(items[_upc].originFarmerID);
+      // Transfer money to farmer
+      items[_upc].originFarmerID.transfer(msg.value);
 
-    farmerAddress.transfer(msg.value);
-    
     // emit the appropriate event
       emit Sold(_upc);
     

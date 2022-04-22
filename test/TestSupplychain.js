@@ -82,13 +82,12 @@ contract('SupplyChain', function(accounts) {
         // Retrieve the just now saved item from blockchain by calling function resultBufferOne()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
         const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc)
-        console.log("State: ", resultBufferTwo.itemState[0])
 
         // Verify the result set
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], originFarmerID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Processed", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 1, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')        
                 
     })    
@@ -117,7 +116,8 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], originFarmerID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Packed", 'Error: Invalid State')
+        //assert.equal(resultBufferTwo.itemState, "Packed", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 2, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
        
     })    
@@ -146,7 +146,8 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], originFarmerID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "ForSale", 'Error: Invalid State')
+        //assert.equal(resultBufferTwo.itemState, "ForSale", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 3, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
      
     })    
@@ -164,11 +165,14 @@ contract('SupplyChain', function(accounts) {
             eventEmitted = true
         })
 
+        //Add distributor role to address
+        await supplyChain.addDistributor(distributorID);
+
         // Mark an item as Sold by calling function buyItem()
         console.log("before buyItem distId + product price", distributorID, productPrice)
-        const resultBuffer3 = await supplyChain.fetchItemBufferTwo.call(upc)
-        console.log("resultBuffer3 ", resultBuffer3)
-        await supplyChain.buyItem(upc, {from: distributorID, value: productPrice})
+        const resultBufferx = await supplyChain.fetchItemBufferTwo.call(upc)
+        console.log("resultBufferx ", resultBufferx)
+        await supplyChain.buyItem(upc,{from:distributorID,value:productPrice});
         console.log("after buyItem")
 
         // Retrieve the just now saved item from blockchain by calling function resultBufferOne()
@@ -179,7 +183,8 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], distributorID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Sold", 'Error: Invalid State')
+        //assert.equal(resultBufferTwo.itemState, "Sold", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 4, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
                 
     })    
@@ -208,7 +213,8 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], distributorID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Shipped", 'Error: Invalid State')
+        //assert.equal(resultBufferTwo.itemState, "Shipped", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 5, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
                       
     })    
@@ -237,8 +243,9 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], retailerID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Received", 'Error: Invalid State')
-        assert.equal(eventEmitted, true, 'Invalid event emitted')
+       // assert.equal(resultBufferTwo.itemState, "Received", 'Error: Invalid State')
+       assert.equal(resultBufferTwo[5], 6, 'Error: processItem - Invalid State')
+       assert.equal(eventEmitted, true, 'Invalid event emitted')
              
     })    
 
@@ -267,7 +274,8 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], consumerID, 'Error: Missing or Invalid ownerID')
-        assert.equal(resultBufferTwo.itemState, "Purchased", 'Error: Invalid State')
+        //assert.equal(resultBufferTwo.itemState, "Purchased", 'Error: Invalid State')
+        assert.equal(resultBufferTwo[5], 7, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
 
     })    
