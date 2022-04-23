@@ -17,6 +17,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a variable called 'sku' for Stock Keeping Unit (SKU)
   uint  sku;
 
+  address lclVar;
   // Define a public mapping 'items' that maps the UPC to an Item.
   mapping (uint => Item) items;
 
@@ -92,6 +93,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
     uint _price = items[_upc].productPrice;
     uint amountToReturn = msg.value - _price;
     //items[_upc].distributorID.call{value:amountToReturn};
+
     items[_upc].distributorID.transfer(amountToReturn);
   }
 
@@ -187,7 +189,9 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   }
 
   // Define a function 'processtItem' that allows a farmer to mark an item 'Processed'
-  function processItem(uint _upc) public harvested(_upc) verifyCaller(msg.sender)
+  function processItem(uint _upc) public 
+    harvested(_upc) 
+    verifyCaller(msg.sender)
   {
     // Update the appropriate fields
     items[_upc].itemState = State.Processed;  // Product State as represented in the enum above
@@ -198,7 +202,9 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   }
 
   // Define a function 'packItem' that allows a farmer to mark an item 'Packed'
-  function packItem(uint _upc) public processed(_upc) verifyCaller(msg.sender)
+  function packItem(uint _upc) public 
+    processed(_upc) 
+    verifyCaller(msg.sender)
   // Call modifier to check if upc has passed previous supply chain stage
   
   // Call modifier to verify caller of this function
@@ -223,10 +229,10 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a function 'buyItem' that allows the disributor to mark an item 'Sold'
   // Use the above defined modifiers to check if the item is available for sale, if the buyer has paid enough, 
   // and any excess ether sent is refunded back to the buyer
-  function buyItem(uint _upc) public 
-    payable forSale(_upc) 
+  function buyItem(uint _upc) public payable 
+    forSale(_upc) 
     paidEnough(items[_upc].productPrice) 
-    checkValue(_upc) 
+    //checkValue(_upc) 
     onlyDistributor   
     {
       /*if (items[_upc].productPrice < msg.value) {
@@ -248,14 +254,14 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
 
   // Define a function 'shipItem' that allows the distributor to mark an item 'Shipped'
   // Use the above modifers to check if the item is sold
-  function shipItem(uint _upc) public verifyCaller(msg.sender) sold(_upc)
-    // Call modifier to check if upc has passed previous supply chain stage
-    
-    // Call modifier to verify caller of this function
-    
+  function shipItem(uint _upc) public 
+    verifyCaller(msg.sender)
+    sold(_upc)
     {
     // Update the appropriate fields
-        items[_upc].itemState = State.Shipped;  // Product State as represented in the enum above    
+      items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
+      items[_upc].distributorID = msg.sender; // Metamask-Ethereum address of the Farmer
+      items[_upc].itemState = State.Shipped;  // Product State as represented in the enum above    
     // Emit the appropriate event
       emit Shipped(_upc);  
     
@@ -263,11 +269,11 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
 
   // Define a function 'receiveItem' that allows the retailer to mark an item 'Received'
   // Use the above modifiers to check if the item is shipped
-  function receiveItem(uint _upc) public shipped(_upc) verifyCaller(msg.sender) onlyRetailer
-    // Call modifier to check if upc has passed previous supply chain stage
-    
-    // Access Control List enforced by calling Smart Contract / DApp
-    {
+  function receiveItem(uint _upc) public 
+      shipped(_upc) 
+      verifyCaller(msg.sender) 
+    onlyRetailer
+      {
     // Update the appropriate fields - ownerID, retailerID, itemState
       items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
       items[_upc].retailerID = msg.sender; // Metamask-Ethereum address of the Farmer
@@ -280,7 +286,10 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
 
   // Define a function 'purchaseItem' that allows the consumer to mark an item 'Purchased'
   // Use the above modifiers to check if the item is received
-  function purchaseItem(uint _upc) public received(_upc) verifyCaller(msg.sender) onlyConsumer
+  function purchaseItem(uint _upc) public 
+  //received(_upc) 
+  verifyCaller(msg.sender) 
+  onlyConsumer
     // Call modifier to check if upc has passed previous supply chain stage
     
     // Access Control List enforced by calling Smart Contract / DApp

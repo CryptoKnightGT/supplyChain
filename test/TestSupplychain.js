@@ -183,7 +183,6 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], distributorID, 'Error: Missing or Invalid ownerID')
-        //assert.equal(resultBufferTwo.itemState, "Sold", 'Error: Invalid State')
         assert.equal(resultBufferTwo[5], 4, 'Error: processItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
                 
@@ -202,6 +201,8 @@ contract('SupplyChain', function(accounts) {
             eventEmitted = true
         })
 
+        //Add distributor role to address
+        //await supplyChain.addDistributor(distributorID);
         // Mark an item as Harvested by calling function shipItem()
         await supplyChain.shipItem(upc, {from: distributorID})
 
@@ -213,8 +214,7 @@ contract('SupplyChain', function(accounts) {
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
         assert.equal(resultBufferOne[2], distributorID, 'Error: Missing or Invalid ownerID')
-        //assert.equal(resultBufferTwo.itemState, "Shipped", 'Error: Invalid State')
-        assert.equal(resultBufferTwo[5], 5, 'Error: processItem - Invalid State')
+        assert.equal(resultBufferTwo[5], 5, 'Error: shipItem - Invalid State')
         assert.equal(eventEmitted, true, 'Invalid event emitted')
                       
     })    
@@ -232,7 +232,9 @@ contract('SupplyChain', function(accounts) {
             eventEmitted = true
         })
 
-        // Mark an item as Harvested by calling function receiveItem()
+         //Add retailer role to address
+         await supplyChain.addRetailer(retailerID);
+         // Mark an item as Harvested by calling function receiveItem()
         await supplyChain.receiveItem(upc, {from: retailerID})
 
         // Retrieve the just now saved item from blockchain by calling function resultBufferOne()
@@ -263,8 +265,10 @@ contract('SupplyChain', function(accounts) {
             eventEmitted = true
         })
 
+        //Add consumer role to address
+        await supplyChain.addConsumer(consumerID);
         // Mark an item as Harvested by calling function receiveItem()
-        await supplyChain.buyItem(upc, {from: consumerID})
+        await supplyChain.purchaseItem(upc,{from:consumerID});
 
         // Retrieve the just now saved item from blockchain by calling function resultBufferOne()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -290,7 +294,6 @@ contract('SupplyChain', function(accounts) {
         // Verify the result set
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
-        assert.equal(eventEmitted, true, 'Invalid event emitted')
         
     })
 
@@ -304,7 +307,6 @@ contract('SupplyChain', function(accounts) {
         // Verify the result set
         assert.equal(resultBufferOne[0].toNumber(), sku, 'Error: Invalid item SKU')
         assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
-        assert.equal(eventEmitted, true, 'Invalid event emitted')
         
     })
 
