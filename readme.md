@@ -32,4 +32,4 @@
     web3 1.7.3
 
 # Other
-    UML.pptx is the UML diagram for the project
+    UML1.png to UML6.png are the UML diagrams for the project
