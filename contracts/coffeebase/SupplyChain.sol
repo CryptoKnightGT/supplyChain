@@ -4,6 +4,7 @@ import "../coffeeaccesscontrol/DistributorRole.sol";
 import "../coffeeaccesscontrol/ConsumerRole.sol";
 import "../coffeeaccesscontrol/FarmerRole.sol";
 import "../coffeeaccesscontrol/RetailerRole.sol";
+import "../coffeecore/Ownable.sol";
 
 // Define a contract 'Supplychain'
 contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole {
@@ -162,6 +163,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
 
   // Define a function 'harvestItem' that allows a farmer to mark an item 'Harvested'
   function harvestItem(uint _upc, address _originFarmerID, string _originFarmName, string _originFarmInformation, string  _originFarmLatitude, string  _originFarmLongitude, string  _productNotes) public 
+    onlyFarmer
   {
     Item memory newItem;
 
@@ -190,7 +192,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a function 'processtItem' that allows a farmer to mark an item 'Processed'
   function processItem(uint _upc) public 
     harvested(_upc) 
-    verifyCaller(msg.sender)
+    verifyCaller(items[_upc].ownerID)
   {
     // Update the appropriate fields
     items[_upc].itemState = State.Processed;  // Product State as represented in the enum above
@@ -265,8 +267,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Use the above modifiers to check if the item is shipped
   function receiveItem(uint _upc) public 
       shipped(_upc) 
-      verifyCaller(msg.sender) 
-    onlyRetailer
+      onlyRetailer
       {
     // Update the appropriate fields - ownerID, retailerID, itemState
       items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
@@ -281,12 +282,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a function 'purchaseItem' that allows the consumer to mark an item 'Purchased'
   // Use the above modifiers to check if the item is received
   function purchaseItem(uint _upc) public 
-  //received(_upc) 
-  verifyCaller(msg.sender) 
-  onlyConsumer
-    // Call modifier to check if upc has passed previous supply chain stage
-    
-    // Access Control List enforced by calling Smart Contract / DApp
+    onlyConsumer
     {
     // Update the appropriate fields - ownerID, consumerID, itemState
       items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
