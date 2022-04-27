@@ -92,8 +92,6 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
     _;
     uint _price = items[_upc].productPrice;
     uint amountToReturn = msg.value - _price;
-    // send money from distributor back to originFarmerID
-    //items[_upc].distributorID.call{value:amountToReturn};
 
     items[_upc].distributorID.transfer(amountToReturn);
   }
@@ -233,15 +231,15 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   function buyItem(uint _upc) public payable 
     forSale(_upc) 
     paidEnough(items[_upc].productPrice) 
-    //checkValue(_upc) 
+    checkValue(_upc) 
     onlyDistributor   
     {
       // Update the appropriate fields - ownerID, distributorID, itemState
       items[_upc].ownerID = msg.sender;  // Metamask-Ethereum address of the current owner as the product moves through 8 stages
-      items[_upc].distributorID = msg.sender; // Metamask-Ethereum address of the Farmer
+      items[_upc].distributorID = msg.sender; // Metamask-Ethereum address of the dist
       items[_upc].itemState = State.Sold;  // Product State as represented in the enum above    
       // Transfer money to farmer
-      items[_upc].originFarmerID.transfer(msg.value);
+      items[_upc].originFarmerID.transfer(items[_upc].productPrice);
 
     // emit the appropriate event
       emit Sold(_upc);

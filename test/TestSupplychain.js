@@ -136,7 +136,7 @@ contract('SupplyChain', function(accounts) {
         })
 
         // Mark an item as Harvested by calling function sellItem()
-        await supplyChain.sellItem(upc, 1, {from: originFarmerID})
+        await supplyChain.sellItem(upc, productPrice, {from: originFarmerID})
 
         // Retrieve the just now saved item from blockchain by calling function resultBufferOne()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
