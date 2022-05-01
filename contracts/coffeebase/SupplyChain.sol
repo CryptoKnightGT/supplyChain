@@ -7,7 +7,7 @@ import "../coffeeaccesscontrol/RetailerRole.sol";
 import "../coffeecore/Ownable.sol";
 
 // Define a contract 'Supplychain'
-contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole {
+contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole, Ownable {
 
   // Define 'owner'
   address owner;
@@ -205,7 +205,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a function 'packItem' that allows a farmer to mark an item 'Packed'
   function packItem(uint _upc) public 
     processed(_upc) 
-    verifyCaller(msg.sender)
+    verifyCaller(items[_upc].ownerID)
   // Call modifier to check if upc has passed previous supply chain stage
   
   // Call modifier to verify caller of this function
@@ -218,7 +218,8 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   }
 
   // Define a function 'sellItem' that allows a farmer to mark an item 'ForSale'
-  function sellItem(uint _upc, uint _price) public packed(_upc) verifyCaller(msg.sender)
+  function sellItem(uint _upc, uint _price) public packed(_upc) 
+    verifyCaller(items[_upc].originFarmerID)
   {
     // Update the appropriate fields
     items[_upc].itemState = State.ForSale;  // Product State as represented in the enum above    
@@ -251,7 +252,7 @@ contract SupplyChain is DistributorRole, ConsumerRole, FarmerRole, RetailerRole 
   // Define a function 'shipItem' that allows the distributor to mark an item 'Shipped'
   // Use the above modifers to check if the item is sold
   function shipItem(uint _upc) public 
-    verifyCaller(msg.sender)
+    verifyCaller(items[_upc].distributorID)
     sold(_upc)
     {
     // Update the appropriate fields
